@@ -13,13 +13,16 @@ public class Main {
         Edge CtoD = new Edge(3, D);
         Edge BtoC = new Edge(2, C);
         Edge DtoE = new Edge(5, E);
+        Edge BtoE = new Edge(3, E);
         A.addEdge(AtoB);
         A.addEdge(AtoC);
         B.addEdge(BtoC);
         C.addEdge(CtoD);
         D.addEdge(DtoE);
+        B.addEdge(BtoE);
         ShortestPath sp = new ShortestPath();
         sp.Dijkstra(A, E);
+        System.out.println(E.distanceToStart);
     }
 }
 
@@ -95,15 +98,16 @@ class ShortestPath {
             exploreNode.found = true;
             for (Edge edge : exploreNode.edges) {
                 if(!edge.to.found) {
-                    pq.add(edge.to);
-                    System.out.println("Reach");
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
-                        edge.to.distanceToStart = edge.to.distanceToStart + edge.drivingTime;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.add(edge.to);
                     } else if (edge.to.distanceToStart > exploreNode.distanceToStart + edge.drivingTime) {
                         //TODO legge til estimatedGoalDistance i else if greia
                         edge.to.previousNode = exploreNode;
-                        edge.to.distanceToStart = edge.to.distanceToStart + edge.drivingTime;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.remove(edge.to);
+                        pq.add(edge.to);
                     }
                 }
             }
