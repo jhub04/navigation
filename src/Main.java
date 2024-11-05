@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 
 public class Main {
     public static void main(String[] args) {
-        Node []nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
+        Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         Node start = nodes[6441311];
@@ -15,8 +15,29 @@ public class Main {
         sp.Dijkstra(start, end);
         int secondsTravel = end.distanceToStart / 100;
         int hourTravel = secondsTravel / 3600;
-        int minTravel = (secondsTravel - hourTravel*3600)/60;
+        int minTravel = (secondsTravel - hourTravel * 3600) / 60;
         System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
+    }
+
+    static Node[] transposeGraph(Node[] nodes) {
+        Node[] transposedGraph = new Node[nodes.length];
+
+        for (int i = 0; i < nodes.length; ++i) {
+            transposedGraph[i] = new Node(i, nodes[i].latitude, nodes[i].longitude);
+        }
+
+        for (int i = 0; i < nodes.length; ++i) {
+            //u->v to v->u
+            Node u = nodes[i];
+            int nodeUNum = i;
+            for (Edge edge : u.edges) {
+                int nodeVNum = edge.to.nodeNum;
+                Node newVNode = transposedGraph[nodeVNum];
+                Node newUNode = transposedGraph[nodeUNum];
+                newVNode.addEdge(new Edge(edge.drivingTime, newUNode, edge.distance));
+            }
+        }
+        return transposedGraph;
     }
 }
 
@@ -99,15 +120,15 @@ class ShortestPath {
             Node exploreNode = pq.poll();
             exploreNode.found = true;
             for (Edge edge : exploreNode.edges) {
-                if(!edge.to.found) {
+                if (!edge.to.found) {
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
-                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart+1;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.add(edge.to);
                     } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
                         edge.to.previousNode = exploreNode;
-                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart+1;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.remove(edge.to);
                         pq.add(edge.to);
@@ -118,7 +139,7 @@ class ShortestPath {
     }
 }
 
-class GraphFileReader{
+class GraphFileReader {
     static String[] felt = new String[10];
 
     public static Node[] readNodesFromFile(String fileName) {
@@ -127,7 +148,7 @@ class GraphFileReader{
             String line = br.readLine();
             hsplit(line, 1);
             int nodeAmount = Integer.parseInt(felt[0]);
-            Node []nodes = new Node[nodeAmount];
+            Node[] nodes = new Node[nodeAmount];
 
             while ((line = br.readLine()) != null) {
                 hsplit(line, 3);
@@ -142,7 +163,7 @@ class GraphFileReader{
         }
     }
 
-    public static void readEdgesFromFile(String pathName, Node []nodes) {
+    public static void readEdgesFromFile(String pathName, Node[] nodes) {
         try (BufferedReader br = new BufferedReader(new FileReader(pathName))) {
             System.out.println("lese kanter");
             String line = br.readLine();
@@ -163,12 +184,12 @@ class GraphFileReader{
         }
     }
 
-    public static void readTypeCodesFromFile(String path, Node []nodes) {
+    public static void readTypeCodesFromFile(String path, Node[] nodes) {
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             br.readLine();
             String line;
 
-            while((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 hsplit(line, 3);
                 int nodeNum = Integer.parseInt(felt[0]);
                 nodes[nodeNum].typeCode = Integer.parseInt(felt[1]);
