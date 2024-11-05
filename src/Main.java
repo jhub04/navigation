@@ -8,6 +8,13 @@ public class Main {
     public static void main(String[] args) {
         Node []nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
+        Node start = nodes[2800567];
+        Node end = nodes[7705656];
+        ShortestPath sp = new ShortestPath();
+        sp.Dijkstra(start, end);
+        int secondsTravel = end.distanceToStart * 100;
+        int minTravel = secondsTravel % 60;
+        System.out.println("Travel takes " + minTravel + " minutes" + (secondsTravel - minTravel*60) + " seconds");
     }
 }
 
