@@ -9,14 +9,11 @@ public class Main {
         Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
-        Node start = nodes[6441311];
-        Node end = nodes[3168086];
         ShortestPath sp = new ShortestPath();
-        sp.Dijkstra(start, end);
-        int secondsTravel = end.distanceToStart / 100;
-        int hourTravel = secondsTravel / 3600;
-        int minTravel = (secondsTravel - hourTravel * 3600) / 60;
-        System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
+        Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
+        for (Node node : nodesFound) {
+            System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
+        }
     }
 
     static Node[] transposeGraph(Node[] nodes) {
@@ -136,6 +133,39 @@ class ShortestPath {
                 }
             }
         }
+    }
+
+    public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount) {
+        int amountFound = 0;
+        Node []nodesFoundOfType = new Node[amount];
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        startNode.distanceToStart = 0;
+        pq.add(startNode);
+        while (amountFound < amount) {
+            Node exploreNode = pq.poll();
+            exploreNode.found = true;
+            for (Edge edge : exploreNode.edges) {
+                if (!edge.to.found) {
+                    if ((edge.to.typeCode & typeCode) == typeCode) {
+                        nodesFoundOfType[amountFound] = edge.to;
+                        amountFound++;
+                    }
+                    if (edge.to.previousNode == null) {
+                        edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.add(edge.to);
+                    } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
+                        edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.remove(edge.to);
+                        pq.add(edge.to);
+                    }
+                }
+            }
+        }
+        return nodesFoundOfType;
     }
 }
 
