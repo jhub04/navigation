@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) {
         Node []nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
+        GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         Node start = nodes[6441311];
         Node end = nodes[3168086];
         ShortestPath sp = new ShortestPath();
@@ -29,6 +30,7 @@ class Node implements Comparable<Node> {
     int estimatedDistanceToGoal = 0;
     boolean found = false;
     int amountOfNodesToStart = 0;
+    int typeCode;
 
     //DEnne for dijkstra
     public Node(int nodeNum, double latitude, double longitude) {
@@ -100,12 +102,12 @@ class ShortestPath {
                 if(!edge.to.found) {
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
-                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart++;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart+1;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.add(edge.to);
                     } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
                         edge.to.previousNode = exploreNode;
-                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart++;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart+1;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.remove(edge.to);
                         pq.add(edge.to);
@@ -156,6 +158,21 @@ class GraphFileReader{
                 nodes[nodeFromNum].addEdge(edge);
             }
             System.out.println("Feridg kant");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void readTypeCodesFromFile(String path, Node []nodes) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            br.readLine();
+            String line;
+
+            while((line = br.readLine()) != null) {
+                hsplit(line, 3);
+                int nodeNum = Integer.parseInt(felt[0]);
+                nodes[nodeNum].typeCode = Integer.parseInt(felt[1]);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
