@@ -102,8 +102,7 @@ class ShortestPath {
                         edge.to.previousNode = exploreNode;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.add(edge.to);
-                    } else if (edge.to.distanceToStart > exploreNode.distanceToStart + edge.drivingTime) {
-                        //TODO legge til estimatedGoalDistance i else if greia
+                    } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
                         edge.to.previousNode = exploreNode;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.remove(edge.to);
