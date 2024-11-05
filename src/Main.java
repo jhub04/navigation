@@ -27,6 +27,7 @@ class Node implements Comparable<Node> {
     int distanceToStart;
     int estimatedDistanceToGoal = 0;
     boolean found = false;
+    int amountOfNodesToStart = 0;
 
     //DEnne for dijkstra
     public Node(int nodeNum, double latitude, double longitude) {
@@ -51,6 +52,10 @@ class Node implements Comparable<Node> {
         edges.add(edge);
     }
 
+    void clearDistanceToGoal() {
+        estimatedDistanceToGoal = 0;
+    }
+
     public void setPreviousNode(Node previousNode) {
         this.previousNode = previousNode;
     }
@@ -72,10 +77,12 @@ class Node implements Comparable<Node> {
 class Edge {
     int drivingTime; //I hundredels sekunder
     Node to;
+    int distance;
 
-    public Edge(int drivingTime, Node to) {
+    public Edge(int drivingTime, Node to, int distance) {
         this.drivingTime = drivingTime;
         this.to = to;
+        this.distance = distance;
     }
 }
 
@@ -92,10 +99,12 @@ class ShortestPath {
                 if(!edge.to.found) {
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart++;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.add(edge.to);
                     } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
                         edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart++;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
                         pq.remove(edge.to);
                         pq.add(edge.to);
@@ -141,7 +150,8 @@ class GraphFileReader{
                 int nodeFromNum = Integer.parseInt(felt[0]);
                 int nodeToNum = Integer.parseInt(felt[1]);
                 int drivingTime = Integer.parseInt(felt[2]);
-                Edge edge = new Edge(drivingTime, nodes[nodeToNum]);
+                int distance = Integer.parseInt(felt[3]);
+                Edge edge = new Edge(drivingTime, nodes[nodeToNum], distance);
                 nodes[nodeFromNum].addEdge(edge);
             }
             System.out.println("Feridg kant");
