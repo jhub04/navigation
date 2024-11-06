@@ -11,11 +11,24 @@ public class Main {
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         ShortestPath sp = new ShortestPath();
         Node[] landmarks = {nodes[3879816], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
-        int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes.length);
+        int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
         /**Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
         for (Node node : nodesFound) {
             System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
         }*/
+        //sp.Dijkstra(nodes[3879816], nodes[3747781]);
+        //int distNordkappSmorfjord = nodes[3747781].distanceToStart;
+
+        //int tab = distFromLandmarksToNodes[0][3747781];
+
+        //System.out.println(distNordkappSmorfjord + " " + tab);
+        Node start = nodes[6441311];
+        Node end = nodes[3168086];
+        sp.Dijkstra(start, end, nodes);
+        int secondsTravel = end.distanceToStart / 100;
+        int hourTravel = secondsTravel / 3600;
+        int minTravel = (secondsTravel - hourTravel*3600)/60;
+        System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
     }
 
     static Node[] transposeGraph(Node[] nodes) {
@@ -87,6 +100,10 @@ class Node implements Comparable<Node> {
         this.distanceToStart = distanceToStart;
     }
 
+    public void clearDistanceToStart() {
+        this.distanceToStart = 0;
+    }
+
     @Override
     public int compareTo(Node o) {
         if (this.distanceToStart + this.estimatedDistanceToGoal < o.distanceToStart + o.estimatedDistanceToGoal) {
@@ -110,7 +127,11 @@ class Edge {
 }
 
 class ShortestPath {
-    public void Dijkstra(Node startNode, Node goalNode) {
+    public void Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
+        for (Node node : nodes) {
+            node.clearDistanceToStart();
+        }
+
         PriorityQueue<Node> pq = new PriorityQueue<>();
         startNode.distanceToStart = 0;
         pq.add(startNode);
@@ -137,7 +158,11 @@ class ShortestPath {
         }
     }
 
-    public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount) {
+    public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount, Node[] nodes) {
+        for (Node node : nodes) {
+            node.clearDistanceToStart();
+        }
+
         int amountFound = 0;
         Node []nodesFoundOfType = new Node[amount];
         PriorityQueue<Node> pq = new PriorityQueue<>();
@@ -170,8 +195,11 @@ class ShortestPath {
         return nodesFoundOfType;
     }
 
-    public int[][] getDistancesFromLandmarkToNodes(Node[] landmarks, int amountOfNodes) {
-        int[][] distanceFromLandmarkToNodes = new int[landmarks.length][amountOfNodes];
+    public int[][] getDistancesFromLandmarkToNodes(Node[] landmarks, Node[] nodes) {
+        for (Node node : nodes) {
+            node.clearDistanceToStart();
+        }
+        int[][] distanceFromLandmarkToNodes = new int[landmarks.length][nodes.length];
         for (int i = 0; i < landmarks.length; i++) {
             PriorityQueue<Node> pq = new PriorityQueue<>();
             landmarks[i].distanceToStart = 0;
