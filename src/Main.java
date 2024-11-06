@@ -128,10 +128,11 @@ class Edge {
 
 class ShortestPath {
     public void Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
-        for (Node node : nodes) {
-            node.clearDistanceToStart();
+        for (Node node :  nodes) {
+            node.setDistanceToStart(Integer.MAX_VALUE);
+            node.previousNode = null;
+            node.found = false;
         }
-
         PriorityQueue<Node> pq = new PriorityQueue<>();
         startNode.distanceToStart = 0;
         pq.add(startNode);
@@ -159,10 +160,6 @@ class ShortestPath {
     }
 
     public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount, Node[] nodes) {
-        for (Node node : nodes) {
-            node.clearDistanceToStart();
-        }
-
         int amountFound = 0;
         Node []nodesFoundOfType = new Node[amount];
         PriorityQueue<Node> pq = new PriorityQueue<>();
@@ -196,8 +193,10 @@ class ShortestPath {
     }
 
     public int[][] getDistancesFromLandmarkToNodes(Node[] landmarks, Node[] nodes) {
-        for (Node node : nodes) {
-            node.clearDistanceToStart();
+        for (Node node :  nodes) {
+            node.setDistanceToStart(Integer.MAX_VALUE);
+            node.previousNode = null;
+            node.found = false;
         }
         int[][] distanceFromLandmarkToNodes = new int[landmarks.length][nodes.length];
         for (int i = 0; i < landmarks.length; i++) {
