@@ -60,9 +60,9 @@ class Node implements Comparable<Node> {
     LinkedList<Edge> edges;
     Node previousNode;
     int distanceToStart;
-    int estimatedDistanceToGoal = 0;
+    int estimatedDistanceToGoal;
     boolean found = false;
-    int amountOfNodesToStart = 0;
+    int amountOfNodesToStart;
     int typeCode;
 
     //DEnne for dijkstra
@@ -128,12 +128,8 @@ class Edge {
 
 class ShortestPath {
     public void Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
-        for (Node node :  nodes) {
-            node.setDistanceToStart(Integer.MAX_VALUE);
-            node.previousNode = null;
-            node.found = false;
-        }
         PriorityQueue<Node> pq = new PriorityQueue<>();
+        initDijkstraSearch(nodes);
         startNode.distanceToStart = 0;
         pq.add(startNode);
         pq.add(goalNode);
@@ -161,6 +157,7 @@ class ShortestPath {
 
     public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount, Node[] nodes) {
         int amountFound = 0;
+        initDijkstraSearch(nodes);
         Node []nodesFoundOfType = new Node[amount];
         PriorityQueue<Node> pq = new PriorityQueue<>();
         startNode.distanceToStart = 0;
@@ -193,13 +190,9 @@ class ShortestPath {
     }
 
     public int[][] getDistancesFromLandmarkToNodes(Node[] landmarks, Node[] nodes) {
-        for (Node node :  nodes) {
-            node.setDistanceToStart(Integer.MAX_VALUE);
-            node.previousNode = null;
-            node.found = false;
-        }
         int[][] distanceFromLandmarkToNodes = new int[landmarks.length][nodes.length];
         for (int i = 0; i < landmarks.length; i++) {
+            initDijkstraSearch(nodes);
             PriorityQueue<Node> pq = new PriorityQueue<>();
             landmarks[i].distanceToStart = 0;
             pq.add(landmarks[i]);
@@ -226,6 +219,15 @@ class ShortestPath {
             }
         }
         return distanceFromLandmarkToNodes;
+    }
+
+    void initDijkstraSearch(Node[] nodes) {
+        for (Node node :  nodes) {
+            node.setDistanceToStart(Integer.MAX_VALUE);
+            node.previousNode = null;
+            node.found = false;
+            node.amountOfNodesToStart = 1;
+        }
     }
 }
 
