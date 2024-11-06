@@ -13,10 +13,15 @@ public class Main {
         Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
         int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
         int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
+        Node start = nodes[6441311];
+        Node end = nodes[3168086];
+        sp.AStar(start, end, nodes, landmarks, distFromLandmarksToNodes, distFromNodesToLandmarks);
 
-        sp.Dijkstra(transposedNodes[2531818], transposedNodes[2531818], transposedNodes);
-        System.out.println(transposedNodes[3747781].distanceToStart);
-        System.out.println(distFromNodesToLandmarks[0][2531818]);
+        int secondsTravel = end.distanceToStart / 100;
+        int hourTravel = secondsTravel / 3600;
+        int minTravel = (secondsTravel - hourTravel*3600)/60;
+        System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
+        System.out.println(end.amountOfNodesToStart);
     }
 
     static void runDijkstra(Node[] nodes, Node start, Node end) {
@@ -136,6 +141,7 @@ class Edge {
 }
 
 class ShortestPath {
+    //Hvis man kjører kun dijkstera så setter man landemerke til null
     public void Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
         initDijkstraSearch(nodes);
@@ -163,6 +169,56 @@ class ShortestPath {
             }
         }
     }
+
+    public void AStar(Node startNode, Node goalNode, Node[] nodes, Node[] landmarks, int[][] distancesFromLandmarksToNodes, int[][] distancesFromNodesToLandmarks) {
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        initDijkstraSearch(nodes);
+        startNode.distanceToStart = 0;
+        setDistanceToGoal(startNode, landmarks, goalNode, distancesFromLandmarksToNodes, distancesFromNodesToLandmarks);
+        pq.add(startNode);
+        pq.add(goalNode);
+        while (!goalNode.found) {
+            Node exploreNode = pq.poll();
+            exploreNode.found = true;
+            for (Edge edge : exploreNode.edges) {
+                if (!edge.to.found) {
+                    setDistanceToGoal(edge.to, landmarks, goalNode, distancesFromLandmarksToNodes, distancesFromNodesToLandmarks);
+                    if (edge.to.previousNode == null) {
+                        edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.add(edge.to);
+                    } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
+                        edge.to.previousNode = exploreNode;
+                        edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                        edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        pq.remove(edge.to);
+                        pq.add(edge.to);
+                    }
+                }
+            }
+        }
+    }
+
+    void setDistanceToGoal(Node from, Node[] landmarks, Node goalNode, int[][] distancesFromLandmarksToNodes, int[][] distancesFromNodesToLandmarks) {
+        int maxEstimate = 0;
+        for(int i = 0; i < landmarks.length; i++) {
+            int distanceFrom = distancesFromLandmarksToNodes[i][from.nodeNum];
+            int distanceGoal = distancesFromLandmarksToNodes[i][goalNode.nodeNum];
+            int distanceEstimate = distanceGoal - distanceFrom;
+            distanceFrom = distancesFromNodesToLandmarks[i][from.nodeNum];
+            distanceGoal = distancesFromNodesToLandmarks[i][goalNode.nodeNum];
+            int newDistanceEstimate = distanceFrom - distanceGoal;
+            if (! (distanceEstimate > newDistanceEstimate)) {
+                distanceEstimate = newDistanceEstimate;
+            }
+            if (distanceEstimate < 0) distanceEstimate = 0;
+            if (distanceEstimate > maxEstimate) maxEstimate = distanceEstimate;
+        }
+        from.estimatedDistanceToGoal = maxEstimate;
+    }
+
+
 
     public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount, Node[] nodes) {
         int amountFound = 0;
