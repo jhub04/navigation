@@ -10,7 +10,7 @@ public class Main {
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         ShortestPath sp = new ShortestPath();
-        Node[] landmarks = {nodes[1991140], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Longyearbyen, 1:Ilomantsi, 2:Bergen, 3:Padborg
+        Node[] landmarks = {nodes[3879816], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
         int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes.length);
         /**Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
         for (Node node : nodesFound) {
