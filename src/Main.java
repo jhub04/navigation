@@ -10,10 +10,12 @@ public class Main {
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         ShortestPath sp = new ShortestPath();
-        Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
+        Node[] landmarks = {nodes[1991140], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Longyearbyen, 1:Ilomantsi, 2:Bergen, 3:Padborg
+        int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes.length);
+        /**Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
         for (Node node : nodesFound) {
             System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
-        }
+        }*/
     }
 
     static Node[] transposeGraph(Node[] nodes) {
@@ -166,6 +168,37 @@ class ShortestPath {
             }
         }
         return nodesFoundOfType;
+    }
+
+    public int[][] getDistancesFromLandmarkToNodes(Node[] landmarks, int amountOfNodes) {
+        int[][] distanceFromLandmarkToNodes = new int[landmarks.length][amountOfNodes];
+        for (int i = 0; i < landmarks.length; i++) {
+            PriorityQueue<Node> pq = new PriorityQueue<>();
+            landmarks[i].distanceToStart = 0;
+            pq.add(landmarks[i]);
+            while (!pq.isEmpty()) {
+                Node exploreNode = pq.poll();
+                exploreNode.found = true;
+                for (Edge edge : exploreNode.edges) {
+                    if (!edge.to.found) {
+                        if (edge.to.previousNode == null) {
+                            edge.to.previousNode = exploreNode;
+                            edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                            edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                            pq.add(edge.to);
+                        } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
+                            edge.to.previousNode = exploreNode;
+                            edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
+                            edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                            pq.remove(edge.to);
+                            pq.add(edge.to);
+                        }
+                        distanceFromLandmarkToNodes[i][edge.to.nodeNum] = edge.to.distanceToStart;
+                    }
+                }
+            }
+        }
+        return distanceFromLandmarkToNodes;
     }
 }
 
