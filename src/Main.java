@@ -5,30 +5,39 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 public class Main {
+    static ShortestPath sp = new ShortestPath();
     public static void main(String[] args) {
-        Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
-        GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
-        GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
-        ShortestPath sp = new ShortestPath();
+        Node[] nodes = readDataFromFiles();
         Node[] landmarks = {nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
+        Node[] transposedNodes = transposeGraph(nodes);
+        Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
         int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
-        /**Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
-        for (Node node : nodesFound) {
-            System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
-        }*/
-        sp.Dijkstra(nodes[2531818], nodes[3747781], nodes);
-        int distNordkappSmorfjord = nodes[3747781].distanceToStart;
+        int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
 
-        int tab = distFromLandmarksToNodes[0][3747781];
+        sp.Dijkstra(transposedNodes[2531818], transposedNodes[2531818], transposedNodes);
+        System.out.println(transposedNodes[3747781].distanceToStart);
+        System.out.println(distFromNodesToLandmarks[0][2531818]);
+    }
 
-        System.out.println(distNordkappSmorfjord + " " + tab);
-        Node start = nodes[2531818];
-        Node end = nodes[3747781];
+    static void runDijkstra(Node[] nodes, Node start, Node end) {
         sp.Dijkstra(start, end, nodes);
         int secondsTravel = end.distanceToStart / 100;
         int hourTravel = secondsTravel / 3600;
         int minTravel = (secondsTravel - hourTravel*3600)/60;
         System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
+    }
+
+    static void findNearestTypes(Node[] nodes, Node startNode, int typeCode, int amount) {
+        Node[] nodesFound = sp.DijkstraFindNearestTypes(startNode, typeCode, amount, nodes);
+         for (Node node : nodesFound) {
+         System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
+         }
+    }
+    static Node[] readDataFromFiles() {
+        Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
+        GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
+        GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
+        return nodes;
     }
 
     static Node[] transposeGraph(Node[] nodes) {
