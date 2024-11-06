@@ -10,20 +10,20 @@ public class Main {
         GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
         GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         ShortestPath sp = new ShortestPath();
-        Node[] landmarks = {nodes[3879816], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
+        Node[] landmarks = {nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
         int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
         /**Node[] nodesFound = sp.DijkstraFindNearestTypes(nodes[2001238], 16, 4);
         for (Node node : nodesFound) {
             System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
         }*/
-        //sp.Dijkstra(nodes[3879816], nodes[3747781]);
-        //int distNordkappSmorfjord = nodes[3747781].distanceToStart;
+        sp.Dijkstra(nodes[2531818], nodes[3747781], nodes);
+        int distNordkappSmorfjord = nodes[3747781].distanceToStart;
 
-        //int tab = distFromLandmarksToNodes[0][3747781];
+        int tab = distFromLandmarksToNodes[0][3747781];
 
-        //System.out.println(distNordkappSmorfjord + " " + tab);
-        Node start = nodes[6441311];
-        Node end = nodes[3168086];
+        System.out.println(distNordkappSmorfjord + " " + tab);
+        Node start = nodes[2531818];
+        Node end = nodes[3747781];
         sp.Dijkstra(start, end, nodes);
         int secondsTravel = end.distanceToStart / 100;
         int hourTravel = secondsTravel / 3600;
