@@ -177,9 +177,6 @@ class Edge {
 }
 
 class ShortestPath {
-
-  Preprocessing pp = new Preprocessing();
-
   public int Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
     PriorityQueue<Node> pq = new PriorityQueue<>();
     initDijkstraSearch(nodes);
@@ -250,10 +247,6 @@ class ShortestPath {
       }
     }
     return count;
-  }
-
-  int distance(Node n1, Node n2) {
-    return (int) pp.haversine(n1.latitude, n2.latitude, n1.longitude, n2.longitude);
   }
 
   void setDistanceToGoal(Node from, Node[] landmarks, Node goalNode,
