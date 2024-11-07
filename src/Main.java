@@ -23,6 +23,9 @@ public class Main {
     Node gloshaugen = nodes[2001238];
     Node levanger = nodes[2106148];
     Node aareBjornen = nodes[790843];
+    Node otilienborg= nodes[1987066];
+    Node fosnavåg = nodes[2486870];
+    Node espoo = nodes[5394165];
     findNearestTypes(nodes, nodes[2106148], chargingStationCode, 4);
   }
 
