@@ -32,9 +32,11 @@ public class Main {
     findNearestTypes(nodes, aareBjornen, eatingPlaceCode, 4);
     System.out.println("------------------------------");
     initializeAStar(nodes);
+    System.out.println("Gløshaugen - Othilienborg");
     runDijkstra(nodes, gloshaugen, otilienborg);
     runAStar(nodes, gloshaugen, otilienborg);
     System.out.println("------------------------------");
+    System.out.println("Fosnavåg - Espoo");
     runDijkstra(nodes, fosnavåg, espoo);
     runAStar(nodes, fosnavåg, espoo);
 
@@ -57,7 +59,7 @@ public class Main {
     int hourTravel = secondsTravel / 3600;
     int minTravel = (secondsTravel - hourTravel * 3600) / 60;
     System.out.println(
-        "Dijkstra: Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60)
+        "Dijkstra: Travel takes " + hourTravel + " hours " + minTravel + " minutes " + (secondsTravel % 60)
             + " seconds from node " + start.nodeNum + " to " + end.nodeNum +" . Dijkstra spent " + (d1 - d0) + " milliseconds and explored " + count + " nodes");
   }
 
@@ -69,7 +71,7 @@ public class Main {
     int hourTravel = secondsTravel / 3600;
     int minTravel = (secondsTravel - hourTravel * 3600) / 60;
     System.out.println(
-        "ALT: Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60)
+        "ALT: Travel takes " + hourTravel + " hours " + minTravel + " minutes " + (secondsTravel % 60)
             + " seconds from node " + start.nodeNum + " to " + end.nodeNum +  ". ALT spent " + (a1 - a0) + " milliseconds and explored " + count + " nodes");
   }
 
@@ -200,10 +202,11 @@ class ShortestPath {
     pq.add(goalNode);
     while (!goalNode.found) {
       Node exploreNode = pq.poll();
+      count++;
       exploreNode.found = true;
       for (Edge edge : exploreNode.edges) {
         if (!edge.to.found) {
-          count++;
+
           if (edge.to.previousNode == null) {
             edge.to.previousNode = exploreNode;
             edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
@@ -238,10 +241,10 @@ class ShortestPath {
     pq.add(goalNode);
     while (!goalNode.found) {
       Node exploreNode = pq.poll();
+      count++;
       exploreNode.found = true;
       for (Edge edge : exploreNode.edges) {
         if (!edge.to.found) {
-          count++;
           if (edge.to.previousNode == null) {
             edge.to.previousNode = exploreNode;
             edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
