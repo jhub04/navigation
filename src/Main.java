@@ -85,9 +85,9 @@ public class Main {
   }
 
   static Node[] readDataFromFiles() {
-    Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
-    GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
-    GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
+    Node[] nodes = GraphFileReader.readNodesFromFile("noder.txt");
+    GraphFileReader.readEdgesFromFile("kanter.txt", nodes);
+    GraphFileReader.readTypeCodesFromFile("interessepkt.txt", nodes);
     return nodes;
   }
 
