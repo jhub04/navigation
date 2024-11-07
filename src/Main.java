@@ -284,12 +284,12 @@ class ShortestPath {
     while (amountFound < amount) {
       Node exploreNode = pq.poll();
       exploreNode.found = true;
+      if ((exploreNode.typeCode & typeCode) == typeCode && !Arrays.asList(nodesFoundOfType).contains(exploreNode)) {
+        nodesFoundOfType[amountFound] = exploreNode;
+        amountFound++;
+      }
       for (Edge edge : exploreNode.edges) {
         if (!edge.to.found) {
-          if ((edge.to.typeCode & typeCode) == typeCode && !Arrays.asList(nodesFoundOfType).contains(edge.to)) {
-            nodesFoundOfType[amountFound] = edge.to;
-            amountFound++;
-          }
           if (edge.to.previousNode == null) {
             edge.to.previousNode = exploreNode;
             edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
