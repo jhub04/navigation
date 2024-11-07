@@ -8,15 +8,14 @@ import java.util.PriorityQueue;
 public class Main {
 
   static ShortestPath sp = new ShortestPath();
+  static int[][] distFromNodesToLandmarks;
+  static int[][] distFromLandmarksToNodes;
+  static Node[] landmarks;
+
 
   public static void main(String[] args) {
     Node[] nodes = readDataFromFiles();
 
-    Node start = nodes[7826348];
-    Node end = nodes[2948202];
-
-    runDijkstra(nodes, start, end);
-    runAStar(nodes, start, end);
     int drinkingPlaceCode = 16;
     int eatingPlaceCode = 8;
     int chargingStationCode = 4;
@@ -26,7 +25,27 @@ public class Main {
     Node otilienborg= nodes[1987066];
     Node fosnavåg = nodes[2486870];
     Node espoo = nodes[5394165];
-    findNearestTypes(nodes, nodes[2106148], chargingStationCode, 4);
+    findNearestTypes(nodes, levanger, chargingStationCode, 4);
+    System.out.println("------------------------------");
+    findNearestTypes(nodes, gloshaugen, drinkingPlaceCode, 4);
+    System.out.println("------------------------------");
+    findNearestTypes(nodes, aareBjornen, eatingPlaceCode, 4);
+    System.out.println("------------------------------");
+    initializeAStar(nodes);
+    runDijkstra(nodes, gloshaugen, otilienborg);
+    runAStar(nodes, gloshaugen, otilienborg);
+    System.out.println("------------------------------");
+    runDijkstra(nodes, fosnavåg, espoo);
+    runAStar(nodes, fosnavåg, espoo);
+
+  }
+
+  static void initializeAStar(Node[] nodes) {
+    landmarks = new Node[]{nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
+    Node[] transposedNodes = transposeGraph(nodes);
+    Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
+    distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
+    distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
   }
 
   static void runDijkstra(Node[] nodes, Node start, Node end) {
@@ -43,11 +62,6 @@ public class Main {
   }
 
   static void runAStar(Node[] nodes, Node start, Node end) {
-    Node[] landmarks = {nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
-    Node[] transposedNodes = transposeGraph(nodes);
-    Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
-    int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
-    int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
     long a0 = System.currentTimeMillis();
     int count = sp.AStar(start, end, nodes, landmarks, distFromLandmarksToNodes, distFromNodesToLandmarks);
     long a1 = System.currentTimeMillis();
