@@ -6,42 +6,54 @@ import java.util.PriorityQueue;
 
 public class Main {
     static ShortestPath sp = new ShortestPath();
-    public static void main(String[] args) {
-        Node[] nodes = readDataFromFiles();
-        Node[] landmarks = {nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
-        Node[] transposedNodes = transposeGraph(nodes);
-        Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
-        int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
-        int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
-        Node start = nodes[6441311];
-        Node end = nodes[3168086];
-        sp.AStar(start, end, nodes, landmarks, distFromLandmarksToNodes, distFromNodesToLandmarks);
 
-        int secondsTravel = end.distanceToStart / 100;
-        int hourTravel = secondsTravel / 3600;
-        int minTravel = (secondsTravel - hourTravel*3600)/60;
-        System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
-        System.out.println(end.amountOfNodesToStart);
+    public static void main(String[] args) {
+        /**
+         Node[] nodes = readDataFromFiles();
+         Node[] landmarks = {nodes[2531818], nodes[7021334], nodes[4909517], nodes[3167529]};//0:Nordkapp, 1:Ilomantsi, 2:Bergen, 3:Padborg
+         Node[] transposedNodes = transposeGraph(nodes);
+         Node[] landmarksTransposed = {transposedNodes[2531818], transposedNodes[7021334], transposedNodes[4909517], transposedNodes[3167529]};
+         int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
+         int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarksTransposed, transposedNodes);
+         Node start = nodes[6441311];
+         Node end = nodes[3168086];
+         sp.AStar(start, end, nodes, landmarks, distFromLandmarksToNodes, distFromNodesToLandmarks);
+
+         int secondsTravel = end.distanceToStart / 100;
+         int hourTravel = secondsTravel / 3600;
+         int minTravel = (secondsTravel - hourTravel*3600)/60;
+         System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
+         System.out.println(end.amountOfNodesToStart);*/
+        Node[] nodes = readDataFromFiles();
+        Node[] landmarks = {nodes[7], nodes[10]};
+        Node[] transposedNodes = transposeGraph(nodes);
+        Node[] landmarkTranspose = {transposedNodes[7], transposedNodes[10]};
+        int[][] distFromLandmarksToNodes = sp.getDistancesFromLandmarkToNodes(landmarks, nodes);
+        int[][] distFromNodesToLandmarks = sp.getDistancesFromLandmarkToNodes(landmarkTranspose, transposedNodes);
+        Node start = nodes[0];
+        Node end = nodes[5];
+        sp.AStar(start, end, nodes, landmarks, distFromLandmarksToNodes, distFromNodesToLandmarks);
     }
 
     static void runDijkstra(Node[] nodes, Node start, Node end) {
         sp.Dijkstra(start, end, nodes);
         int secondsTravel = end.distanceToStart / 100;
         int hourTravel = secondsTravel / 3600;
-        int minTravel = (secondsTravel - hourTravel*3600)/60;
+        int minTravel = (secondsTravel - hourTravel * 3600) / 60;
         System.out.println("Travel takes " + hourTravel + "hours" + minTravel + " minutes" + (secondsTravel % 60) + " seconds");
     }
 
     static void findNearestTypes(Node[] nodes, Node startNode, int typeCode, int amount) {
         Node[] nodesFound = sp.DijkstraFindNearestTypes(startNode, typeCode, amount, nodes);
-         for (Node node : nodesFound) {
-         System.out.println("Node " + node.nodeNum + " coords " + node.latitude +" "+node.longitude+" is of type" + node.typeCode);
-         }
+        for (Node node : nodesFound) {
+            System.out.println("Node " + node.nodeNum + " coords " + node.latitude + " " + node.longitude + " is of type" + node.typeCode);
+        }
     }
+
     static Node[] readDataFromFiles() {
-        Node[] nodes = GraphFileReader.readNodesFromFile("norden/noder.txt");
-        GraphFileReader.readEdgesFromFile("norden/kanter.txt", nodes);
-        GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
+        Node[] nodes = GraphFileReader.readNodesFromFile("nygraf/noder_ny.txt");
+        GraphFileReader.readEdgesFromFile("nygraf/kanter_ny.txt", nodes);
+        //GraphFileReader.readTypeCodesFromFile("norden/interessepkt.txt", nodes);
         return nodes;
     }
 
@@ -141,10 +153,10 @@ class Edge {
 }
 
 class ShortestPath {
-    //Hvis man kjører kun dijkstera så setter man landemerke til null
     public void Dijkstra(Node startNode, Node goalNode, Node[] nodes) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
         initDijkstraSearch(nodes);
+        int count = 0;
         startNode.distanceToStart = 0;
         pq.add(startNode);
         pq.add(goalNode);
@@ -153,6 +165,7 @@ class ShortestPath {
             exploreNode.found = true;
             for (Edge edge : exploreNode.edges) {
                 if (!edge.to.found) {
+                    count++;
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
                         edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
@@ -165,14 +178,19 @@ class ShortestPath {
                         pq.remove(edge.to);
                         pq.add(edge.to);
                     }
+                    /**System.out.println("Nodenum" + edge.to.nodeNum + " coming from node " + exploreNode.nodeNum);
+                     System.out.println("Dist start" + edge.to.distanceToStart);
+                     System.out.println("est dist goal" + edge.to.estimatedDistanceToGoal);*/
                 }
             }
         }
+        System.out.println(count);
     }
 
     public void AStar(Node startNode, Node goalNode, Node[] nodes, Node[] landmarks, int[][] distancesFromLandmarksToNodes, int[][] distancesFromNodesToLandmarks) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
         initDijkstraSearch(nodes);
+        int count = 0;
         startNode.distanceToStart = 0;
         setDistanceToGoal(startNode, landmarks, goalNode, distancesFromLandmarksToNodes, distancesFromNodesToLandmarks);
         pq.add(startNode);
@@ -182,11 +200,12 @@ class ShortestPath {
             exploreNode.found = true;
             for (Edge edge : exploreNode.edges) {
                 if (!edge.to.found) {
-                    setDistanceToGoal(edge.to, landmarks, goalNode, distancesFromLandmarksToNodes, distancesFromNodesToLandmarks);
+                    count++;
                     if (edge.to.previousNode == null) {
                         edge.to.previousNode = exploreNode;
                         edge.to.amountOfNodesToStart = exploreNode.amountOfNodesToStart + 1;
                         edge.to.distanceToStart = exploreNode.distanceToStart + edge.drivingTime;
+                        setDistanceToGoal(edge.to, landmarks, goalNode, distancesFromLandmarksToNodes, distancesFromNodesToLandmarks);
                         pq.add(edge.to);
                     } else if (edge.to.distanceToStart + edge.to.estimatedDistanceToGoal > exploreNode.distanceToStart + edge.to.estimatedDistanceToGoal + edge.drivingTime) {
                         edge.to.previousNode = exploreNode;
@@ -195,21 +214,26 @@ class ShortestPath {
                         pq.remove(edge.to);
                         pq.add(edge.to);
                     }
+                    //System.out.println("Nodenum" + edge.to.nodeNum + " coming from node " + exploreNode.nodeNum);
+                    //System.out.println("Dist start" + edge.to.distanceToStart);
+                    //System.out.println("est dist goal for node" + edge.to.nodeNum + " is " + edge.to.estimatedDistanceToGoal);
                 }
             }
         }
+        System.out.println(count);
     }
 
-    void setDistanceToGoal(Node from, Node[] landmarks, Node goalNode, int[][] distancesFromLandmarksToNodes, int[][] distancesFromNodesToLandmarks) {
+    void setDistanceToGoal(Node from, Node[] landmarks, Node goalNode, int[][] distancesFromLandmarksToNodes,
+                           int[][] distancesFromNodesToLandmarks) {
         int maxEstimate = 0;
-        for(int i = 0; i < landmarks.length; i++) {
+        for (int i = 0; i < landmarks.length; i++) {
             int distanceFrom = distancesFromLandmarksToNodes[i][from.nodeNum];
             int distanceGoal = distancesFromLandmarksToNodes[i][goalNode.nodeNum];
             int distanceEstimate = distanceGoal - distanceFrom;
             distanceFrom = distancesFromNodesToLandmarks[i][from.nodeNum];
             distanceGoal = distancesFromNodesToLandmarks[i][goalNode.nodeNum];
             int newDistanceEstimate = distanceFrom - distanceGoal;
-            if (! (distanceEstimate > newDistanceEstimate)) {
+            if (distanceEstimate < newDistanceEstimate) {
                 distanceEstimate = newDistanceEstimate;
             }
             if (distanceEstimate < 0) distanceEstimate = 0;
@@ -219,11 +243,10 @@ class ShortestPath {
     }
 
 
-
     public Node[] DijkstraFindNearestTypes(Node startNode, int typeCode, int amount, Node[] nodes) {
         int amountFound = 0;
         initDijkstraSearch(nodes);
-        Node []nodesFoundOfType = new Node[amount];
+        Node[] nodesFoundOfType = new Node[amount];
         PriorityQueue<Node> pq = new PriorityQueue<>();
         startNode.distanceToStart = 0;
         pq.add(startNode);
@@ -287,7 +310,7 @@ class ShortestPath {
     }
 
     void initDijkstraSearch(Node[] nodes) {
-        for (Node node :  nodes) {
+        for (Node node : nodes) {
             node.setDistanceToStart(Integer.MAX_VALUE);
             node.previousNode = null;
             node.found = false;
